@@ -1,5 +1,5 @@
 import express from "express";
-import Money from "../model/money.js";
+import { db } from "../connection.js";
 
 const router = express.Router();
 
@@ -7,9 +7,12 @@ const router = express.Router();
 
 // Money
 router.get('/', async (req, res) => {
-  await Money.find()
-    .then((money) => { res.json(money) })
-    .catch((err) => { res.status(400).json('Error: ' + err) })
+  let dbQuery = `select * from ouiadgood.money`
+
+  db.query(dbQuery, (err, data) => {
+    if (err) return res.json(err)
+    return res.json(data)
+  })
 });
 
 export default router

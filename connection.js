@@ -1,28 +1,66 @@
-import mongoose from "mongoose";
+import dotenv from 'dotenv'
+dotenv.config();
+import mysql from 'mysql';
 
-let isConnected = false; // track the connection
+export const db = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD
+})
 
-export const connectToDB = async () => {
-  mongoose.set('strictQuery', true);
+const createDatabase = () => {
+  const dbQuery = `create database if not exists ouiadgood`
+  db.query(dbQuery, (err, data) => {
+    if (err) return console.log(err)
+  })
+}
 
-  if (isConnected) {
-    console.log('MongoDB is already connected');
-    return true;
-  }
+const createTbUsers = () => {
+  const dbQuery = `create table if not exists ouiadgood.Users(
+    _id int NOT NULL AUTO_INCREMENT PRIMARY KEY,  
+    email varchar(60) NOT NULL UNIQUE,  
+    username varchar(45) NOT NULL UNIQUE,
+    password varchar(45) NOT NULL,
+    admin boolean NOT NULL,
+    heart int NOT NULL,
+    totalheart int,
+    referral boolean,
+    numberOfReferred int,
+    createAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
+  )`
+  db.query(dbQuery, (err, data) => {
+    if (err) return console.log(err)
+  })
+}
 
-  try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      dbName: "ouiadgood",
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
+const createTbCharity = () => {
+  const dbQuery = `create table if not exists ouiadgood.Charity(
+    _id int NOT NULL AUTO_INCREMENT PRIMARY KEY,  
+    name varchar(100) NOT NULL,
+    about varchar(250) NOT NULL,
+    heart int NOT NULL,
+    url varchar(250),
+    createAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
+  )`
+  db.query(dbQuery, (err, data) => {
+    if (err) return console.log(err)
+  })
+}
 
-    isConnected = true;
+const createTbMoney = () => {
+  const dbQuery = `create table if not exists ouiadgood.Money(
+    id int AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    totalmoney double NOT NULL,
+    creacreateAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
+  )`
+  db.query(dbQuery, (err, data) => {
+    if (err) return console.log(err)
+  })
+}
 
-    console.log("MongoDB connected")
-    return true;
-  } catch (error) {
-    console.log(error)
-    return false;
-  }
+export const connectToDB = () => {
+  createDatabase();
+  createTbCharity();
+  createTbMoney();
+  createTbUsers();
 }

@@ -1,65 +1,68 @@
 import express from "express";
 import multer from "multer";
-import Charity from '../model/charity.js'
+import { db } from "../connection.js";
 
 const router = express.Router();
-const Storage = multer.diskStorage({
-  destination: 'uploads',
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  }
-})
 
-const upload = multer({
-  storage: Storage
-}).single('image')
+const upload = multer({ storage: multer.memoryStorage() })
 
 // all routes in here are starting with /charity
 
 // Charity
 router.get('/:id', async (req, res) => {
-  await Charity.findById(req.params.id)
-    .then((charities) => { res.json(charities) })
-    .catch((err) => { res.status(400).json('Error: ' + err) })
+  const id = req.params.id
+
+  let dbQuery = `select * from ouiadgood.charity where id = '${id}'`
+
+  db.query(dbQuery, (err, data) => {
+    if (err) return res.json(err)
+    return res.json(data)
+  })
 });
 
 router.get('/', async (req, res) => {
-  await Charity.find()
-    .then((charities) => { res.json(charities) })
-    .catch((err) => { res.status(400).json('Error: ' + err) })
+  let dbQuery = `select * from ouiadgood.charity`
+
+  db.query(dbQuery, (err, data) => {
+    if (err) return res.json(err)
+    return res.json(data)
+  })
 });
 
-router.post('/add', async (req, res) => {
-  await upload(req, res, (err) => {
-    if (err) {
-      console.log(err)
-    } else {
-      const name = req.body.name;
-      const about = req.body.about;
-      const url = req.body.url;
-      const image = { data: req.file.filename === undefined ? "" : req.file.filename, contentType: 'image/png' };
-      console.log(image)
+router.post('/add', upload.single('image'), async (req, res) => {
+  const name = req.body.name;
+  const about = req.body.about;
+  const url = req.body.url;
+  const image = req.file.buffer.toString('base64');
+  const heart = 0;
 
-      const newCharity = new Charity({
-        name,
-        about,
-        image,
-        url,
-        heart: '0'
-      });
+  let dbQuery = `insert into ouiadgood.charity (name,about,heart,image,url) values ('${name}','${about}','${heart}','${image}','${url}')`
 
-      newCharity.save()
-        .then((charities) => { res.json(charities) })
-        .catch((err) => { res.status(400).json('Error: ' + err) })
-    }
+  db.query(dbQuery, (err, data) => {
+    if (err) return res.json(err)
+
+    dbQuery = `select * from ouiadgood.charity`
+    db.query(dbQuery, (err, data) => {
+      if (err) return res.json(err)
+      return res.json(data)
+    })
   })
 });
 
 router.delete('/:id', async (req, res) => {
-  await Charity.findByIdAndDelete(req.params.id)
-  await Charity.find()
-    .then((charities) => { res.json(charities) })
-    .catch((err) => { res.status(400).json('Error: ' + err) })
+  const id = req.params.id;
+
+  let dbQuery = `delete from ouiadgood.charity where id = '${id}'`
+
+  db.query(dbQuery, (err, data) => {
+    if (err) return res.json(err)
+
+    let dbQuery = `select * from ouiadgood.charity`
+    db.query(dbQuery, (err, data) => {
+      if (err) return res.json(err)
+      return res.json(data)
+    })
+  })
 });
 
 // router.delete('/delete-all', async (req, res) => {
@@ -70,23 +73,21 @@ router.delete('/:id', async (req, res) => {
 // });
 
 router.patch('/:id', async (req, res) => {
-  await upload(req, res, (err) => {
-    if (err) {
-      console.log(err)
-    } else {
-      const name = req.body.name;
-      const about = req.body.about;
-      const url = req.body.url;
-      const image = { data: req.file.filename, contentType: 'image/png' };
+  const name = req.body.name;
+  const about = req.body.about;
+  const image = req.file.buffer.toString('base64');
+  const url = req.body.url;
 
-      Charity.updateOne(
-        { id: req.params.id },
-        { $set: { name, about, image, url } }
-      )
-      Charity.findOne({ name: req.body.name })
-        .then((charity) => { res.json(charity) })
-        .catch((err) => { res.status(400).json('Error: ' + err) })
-    }
+  let dbQuery = `update ouiadgood.charity set name= '${name}', about='${about}', image='${image}', url='${url}' where id = '${id}'`
+
+  db.query(dbQuery, (err, data) => {
+    if (err) return res.json(err)
+
+    let dbQuery = `select * from ouiadgood.charity where name = '${name}'`
+    db.query(dbQuery, (err, data) => {
+      if (err) return res.json(err)
+      return res.json(data)
+    })
   })
 });
 

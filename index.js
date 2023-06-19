@@ -3,13 +3,11 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 
-import { connectToDB } from './connection.js'
+import { connectToDB, db } from './connection.js';
 
 import usersRoutes from './routes/users.js'
 import charityRoutes from './routes/charity.js'
 import moneyRoutes from './routes/money.js'
-
-import Money from './model/money.js'
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -17,35 +15,34 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-connectToDB();
-
 app.use('/users', usersRoutes);
 app.use('/charity', charityRoutes);
 app.use('/money', moneyRoutes);
 
-var value = 0.01;
+connectToDB();
+
 var moneyValue = 0;
-var result = {};
 
 if (connectToDB) {
-  const newMoney = new Money({ totalmoney: moneyValue++ });
+  let totalmoney = moneyValue++;
 
-  newMoney.save()
-    .then(() => { /* console.log('Money created!') */ })
-    .catch((err) => { console.log('Error: ' + err) })
+  let dbQuery = `insert into ouiadgood.money (totalmoney) values ('${totalmoney}')`
 
-  Money.deleteMany({ no: { $gt: 0 } })
-    .then(() => { /* console.log('Money deleted!') */ })
-    .catch((err) => { console.log('Error: ' + err) })
+  db.query(dbQuery, (err, data) => {
+    if (err) return console.log(err)
+
+    dbQuery = `delete from ouiadgood.money where totalmoney > 1`
+    db.query(dbQuery, (err, data) => {
+      if (err) return console.log(err)
+    })
+  })
 
   setInterval(async () => {
-    await Money.findOneAndUpdate({}, { $inc: { totalmoney: value } })
-      .then((res) => {
-        result = { ...result, res }
-      })
-      .catch((error) => {
-        console.error('Failed to increase value:', error);
-      });
+    dbQuery = `update ouiadgood.money set totalmoney = totalmoney + 0.01 where id = '1'`
+
+    db.query(dbQuery, (err, data) => {
+      if (err) return console.error('Failed to increase value:', err)
+    })
   }, 10000)
 }
 
