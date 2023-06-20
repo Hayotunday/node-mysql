@@ -31,7 +31,7 @@ if (connectToDB) {
   db.query(dbQuery, (err, data) => {
     if (err) return console.log(err)
 
-    dbQuery = `delete from ouiadgood.money where totalmoney > 1`
+    dbQuery = `delete from ouiadgood.money where id > 1`
     db.query(dbQuery, (err, data) => {
       if (err) return console.log(err)
     })
