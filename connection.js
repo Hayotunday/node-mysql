@@ -8,14 +8,14 @@ export const db = mysql.createConnection({
   password: process.env.DB_PASSWORD
 })
 
-const createDatabase = () => {
+const createDatabase = (req, res) => {
   let dbQuery = `create database if not exists ouiadgood`
   db.query(dbQuery, (err, data) => {
     if (err) return console.log(err)
   })
 }
 
-const createTbUsers = () => {
+const createTbUsers = (req, res) => {
   let dbQuery = `create table if not exists ouiadgood.users(
     _id int NOT NULL AUTO_INCREMENT PRIMARY KEY,  
     email varchar(60) NOT NULL UNIQUE,  
@@ -33,7 +33,7 @@ const createTbUsers = () => {
   })
 }
 
-const createTbCharity = () => {
+const createTbCharity = (req, res) => {
   let dbQuery = `create table if not exists ouiadgood.charity(
     _id int NOT NULL AUTO_INCREMENT PRIMARY KEY,  
     name varchar(100) NOT NULL,
@@ -58,7 +58,7 @@ const createTbMoney = () => {
   })
 }
 
-const createAdminProfile = () => {
+const createAdminProfile = (req, res) => {
   let dbQuery = `select * from ouiadgood.users where email = 'Administrator@gmail.com'`
 
   db.query(dbQuery, (err, data) => {
@@ -74,7 +74,6 @@ const createAdminProfile = () => {
       }
     }
   })
-
 
   db.query(dbQuery, (err, data) => {
     if (err) return console.log(err)
