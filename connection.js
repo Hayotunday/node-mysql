@@ -8,6 +8,10 @@ export const db = mysql.createConnection({
   password: process.env.DB_PASSWORD
 })
 
+if (db) {
+  console.log("DATABASE CONNECTED")
+}
+
 const createDatabase = async (req, res) => {
   let dbQuery = `create database if not exists ouiadgood`
   await db.query(dbQuery, (err, data) => {
