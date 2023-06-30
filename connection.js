@@ -8,14 +8,14 @@ export const db = mysql.createConnection({
   password: process.env.DB_PASSWORD
 })
 
-const createDatabase = (req, res) => {
+const createDatabase = async (req, res) => {
   let dbQuery = `create database if not exists ouiadgood`
-  db.query(dbQuery, (err, data) => {
+  await db.query(dbQuery, (err, data) => {
     if (err) return console.log(err)
   })
 }
 
-const createTbUsers = (req, res) => {
+const createTbUsers = async (req, res) => {
   let dbQuery = `create table if not exists ouiadgood.users(
     _id int NOT NULL AUTO_INCREMENT PRIMARY KEY,  
     email varchar(60) NOT NULL UNIQUE,  
@@ -28,12 +28,12 @@ const createTbUsers = (req, res) => {
     numberOfReferred int,
     createAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
   )`
-  db.query(dbQuery, (err, data) => {
+  await db.query(dbQuery, (err, data) => {
     if (err) return console.log(err)
   })
 }
 
-const createTbCharity = (req, res) => {
+const createTbCharity = async (req, res) => {
   let dbQuery = `create table if not exists ouiadgood.charity(
     _id int NOT NULL AUTO_INCREMENT PRIMARY KEY,  
     name varchar(100) NOT NULL,
@@ -42,23 +42,23 @@ const createTbCharity = (req, res) => {
     url varchar(250),
     createAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
   )`
-  db.query(dbQuery, (err, data) => {
+  await db.query(dbQuery, (err, data) => {
     if (err) return console.log(err)
   })
 }
 
-const createTbMoney = () => {
+const createTbMoney = async () => {
   let dbQuery = `create table if not exists ouiadgood.money(
     id int AUTO_INCREMENT PRIMARY KEY NOT NULL,
     totalmoney double NOT NULL,
     creacreateAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
   )`
-  db.query(dbQuery, (err, data) => {
+  await db.query(dbQuery, (err, data) => {
     if (err) return console.log(err)
   })
 }
 
-const createAdminProfile = (req, res) => {
+const createAdminProfile = async (req, res) => {
   let dbQuery = `select * from ouiadgood.users where email = 'Administrator@gmail.com'`
 
   db.query(dbQuery, (err, data) => {
@@ -80,10 +80,10 @@ const createAdminProfile = (req, res) => {
   })
 }
 
-export const connectToDB = () => {
-  createDatabase();
-  createTbCharity();
-  createTbMoney();
-  createTbUsers();
-  createAdminProfile();
+export const connectToDB = async () => {
+  await createDatabase();
+  await createTbCharity();
+  await createTbMoney();
+  await createTbUsers();
+  await createAdminProfile();
 }
