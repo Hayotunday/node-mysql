@@ -62,14 +62,14 @@ const createAdminProfile = (req, res) => {
   let dbQuery = `select * from ouiadgood.users where email = 'Administrator@gmail.com'`
 
   db.query(dbQuery, (err, data) => {
-    if (err) { return res.json(err) }
+    if (err) { return console.log(err) }
     else {
       if (data.length === 0) {
         dbQuery = `insert into ouiadgood.users (email, username, password, admin, heart, totalheart, referral, numberOfReferred)
           values ('Administrator@gmail.com', 'Administrator', 'Iamadmin', '1', '0', '0', '0', '0')`
 
         db.query(dbQuery, (err, data) => {
-          if (err) return res.json(err)
+          if (err) return console.log(err)
         })
       }
     }
